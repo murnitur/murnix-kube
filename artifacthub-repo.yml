@@ -9,13 +9,9 @@
 # when the hash of the last commit in the branch you set up changes. This does
 # NOT apply to ownership claim operations, which are processed immediately.
 #
-repositoryID: The ID of the Artifact Hub repository where the packages will be published to (optional, but it enables verified publisher)
+repositoryID: e522998f-7f2a-40fd-b340-a4313f48f97c
 owners: # (optional, used to claim repository ownership)
-  - name: user1
-    email: user1@email.com
-  - name: user2
-    email: user2@email.com
+  - name: Caleb Okparra
+    email: support@murnitur.com
 ignore: # (optional, packages that should not be indexed by Artifact Hub)
-  - name: package1
-  - name: package2 # Exact match
-    version: beta # Regular expression (when omitted, all versions are ignored)
+  
