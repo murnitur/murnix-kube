@@ -3,30 +3,16 @@ entries:
   murnix-kube:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2024-04-03T23:52:44.307607Z"
+    created: "2024-04-04T00:07:02.979723Z"
     dependencies:
     - name: metrics-server
       repository: https://kubernetes-sigs.github.io/metrics-server/
       version: 3.12.0
     description: A Helm chart for murnix-kube
-    digest: 57cb92555a04ffeb35c4e59ae7eea1223668ff5c01b690ac8549ccacea69113f
+    digest: c238750031cf042f8c1098ccbfbc8c2df05aca5fdebed6ee8d13fbf253cfe531
     name: murnix-kube
     type: application
     urls:
     - https://murnitur.github.io/murnix-kube/murnix-kube-0.1.1.tgz
     version: 0.1.1
-  - apiVersion: v2
-    appVersion: 1.16.0
-    created: "2024-04-03T23:52:44.305042Z"
-    dependencies:
-    - name: metrics-server
-      repository: https://kubernetes-sigs.github.io/metrics-server/
-      version: 3.12.0
-    description: A Helm chart for murnix-kube
-    digest: 14cbd245fd493fadaa3e56a92e910a523d670c5dbffb5153186e49b28d0e6552
-    name: murnix-kube
-    type: application
-    urls:
-    - https://murnitur.github.io/murnix-kube/murnix-kube-0.1.0.tgz
-    version: 0.1.0
-generated: "2024-04-03T23:52:44.302439Z"
+generated: "2024-04-04T00:07:02.974625Z"
