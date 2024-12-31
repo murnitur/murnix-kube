@@ -415,8 +415,11 @@ const errorUI = () => `
   </div>`;
 
 const successUI =
-  () => `<div class="modem-pay-success"><h2>Thanks for your payment!</h2>
-      <p>Your transaction was completed successfully.</p></div>`;
+  () => `<div class="modem-pay-success"><h2>Successful Payment!</h2>
+      <p>${
+        payload.success_message ??
+        "Your transaction was completed successfully."
+      }</p></div>`;
 
 const getView = () => {
   const methodOptions = state.paymentIntent.payment_method_options || [];
