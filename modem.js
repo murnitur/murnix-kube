@@ -368,6 +368,7 @@ const cleanUp = () => {
   state.expiry = "";
   state.paymentIntent = null;
   state.modal = null;
+  state.success = false;
 };
 
 // Dynamic UI Updates
