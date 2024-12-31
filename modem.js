@@ -418,7 +418,7 @@ const errorUI = () => `
 const successUI =
   () => `<div class="modem-pay-success"><h2>Successful Payment!</h2>
       <p>${
-        payload.success_message ??
+        state.payload.success_message ??
         "Your transaction was completed successfully."
       }</p></div>`;
 
