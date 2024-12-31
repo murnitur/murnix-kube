@@ -258,6 +258,7 @@ const charge = async (event) => {
         window.location.assign(data.return_url);
       } else {
         state.success = true;
+        state.loading = false;
         reloadUI();
         if (state.payload.callback) {
           state.payload.callback(data);
