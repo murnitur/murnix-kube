@@ -16,6 +16,8 @@ const STATE_DEFAULT = {
   gateway: "",
   close: closeModal,
   payload: null,
+  requiresAuth: false,
+  transactionId: null,
 };
 
 const url = "http://localhost:9090/api/payment-intents";
@@ -254,17 +256,87 @@ const charge = async (event) => {
       }
 
       const data = await response.json();
-      if (data.return_url) {
-        window.location.assign(data.return_url);
-      } else {
-        state.success = true;
+      if (data.next_step?.requiresAuthorization) {
+        state.requiresAuth = true;
         state.loading = false;
+        state.hasError = false;
+        state.transactionId = data.transactionId;
         reloadUI();
-        if (state.payload.callback) {
-          state.payload.callback(data);
+      } else {
+        if (data.return_url) {
+          window.location.assign(data.return_url);
         } else {
-          closeModal();
+          state.success = true;
+          reloadUI();
+          if (state.payload.callback) {
+            state.payload.callback(data);
+          } else {
+            closeModal();
+          }
         }
+      }
+    }
+  } catch (error) {
+    handleError(error);
+  } finally {
+    // Reset loading state
+    state.loading = false;
+    reloadUI();
+  }
+};
+
+const finalizeTransaction = async (event) => {
+  try {
+    event.preventDefault();
+
+    const form = event.target;
+    const formData = new FormData(form);
+    state.loading = true;
+    reloadUI(); // Update UI with new state
+    const payload = {
+      gateway: state.view == "card" ? "card" : state.gateway,
+      transactionId: state.transactionId,
+      otp: formData.get("otp") ?? "",
+      payload: {
+        selected_payment_method: state.view,
+        card: state.card,
+        cvv: state.cvv,
+        expiry: state.expiry,
+        gateway: state.view === "card" ? "card" : state.gateway,
+        intent_id: state.paymentIntent?.id,
+        payment_account: state.payment_account,
+        amount: state.paymentIntent?.amount,
+        useSelectedPaymentMethod: false,
+        from_inline: true,
+      },
+    };
+    // Send request to server
+    const response = await fetch(`${url}/finalize`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    // Handle response
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`Error: ${response.status} - ${errorData?.message}`);
+    }
+
+    const data = await response.json();
+
+    if (data.return_url) {
+      window.location.assign(data.return_url);
+    } else {
+      state.requiresAuth = false;
+      state.success = true;
+      reloadUI();
+      if (state.payload.callback) {
+        state.payload.callback(data);
+      } else {
+        closeModal();
       }
     }
   } catch (error) {
@@ -278,9 +350,18 @@ const charge = async (event) => {
 
 // Event Handlers
 
+const attachAuthFormListeners = () => {
+  const form = document.querySelector("#auth-form");
+  if (form) {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      finalizeTransaction(event);
+    });
+  }
+};
+
 const attachFormListeners = () => {
   const form = document.querySelector("#form");
-
   if (form) {
     form.addEventListener("submit", (event) => {
       event.preventDefault();
@@ -380,6 +461,8 @@ const modalUI = () => {
     return errorUI();
   } else if (state.success) {
     return successUI();
+  } else if (state.requiresAuth) {
+    return getAuthorizationScreen();
   } else if (state.paymentIntent) {
     return getView();
   }
@@ -391,6 +474,7 @@ const reloadUI = () => {
     state.modal.innerHTML = modalUI();
     attachPaymentMethodListeners();
     attachFormListeners();
+    attachAuthFormListeners();
     attachCancelListener();
   }
 };
@@ -418,7 +502,7 @@ const errorUI = () => `
 const successUI =
   () => `<div class="modem-pay-success"><h2>Successful Payment!</h2>
       <p>${
-        state.payload.success_message ??
+        payload.success_message ??
         "Your transaction was completed successfully."
       }</p></div>`;
 
@@ -532,3 +616,17 @@ const cardUI = () => `
       <input value="${state.cvv}" type="text" name="cvv" id="cvv" required placeholder="Enter your card cvv" minlength="3"/>
     </div>
   </div>`;
+
+const getAuthorizationScreen =
+  () => `<form action="#" method="POST" autocomplete="off" id="auth-form"><div class="modem-pay-card-layout">
+      <p class="auth_message">Enter the code sent to you.</p>
+      <div class="modem_pay_form_group_card">
+      <label for="otp">Code goes here</label>
+      <input type="text" name="otp" id="otp" required placeholder="Code goes here"/>
+    </div>
+  </div>
+  <input
+    type="submit"
+    value="Finalize Transaction"
+  />
+  </form>`;
