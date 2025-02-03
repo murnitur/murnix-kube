@@ -20,7 +20,7 @@ const STATE_DEFAULT = {
   transactionId: null,
 };
 
-const url = "http://localhost:9090/api/payment-intents";
+const url = "https://api.modempay.com/api/payment-intents";
 const backdropId = "modem-pay-backdrop";
 const modalId = "modem-pay-modal";
 
